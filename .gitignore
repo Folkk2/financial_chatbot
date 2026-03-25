@@ -1,5 +1,8 @@
+#environment
 .env
 .venv
 /.venv
 .venv/
 
+#data
+/data
