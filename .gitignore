@@ -1,11 +1,9 @@
 #environment
 .env
 .venv
-/.venv
 .venv/
 
 #data
-/data
-/chroma_db
+chroma_db/
 
 /__pycache__
