@@ -2,15 +2,15 @@ import os
 import time
 from dotenv import load_dotenv
 
-#langchain
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_chroma import Chroma
+from langchain_qdrant import QdrantVectorStore
 
-# 1. Load environment variables (your API key)
+# load API
 load_dotenv()
 
+# Make the Chunk
 def ingest_document():
     pdf_path = "./data" 
     
@@ -27,26 +27,32 @@ def ingest_document():
 
     embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-001")
 
-    print("Generating embeddings and saving to ChromaDB")
-    vector_store = Chroma(
-        embedding_function=embeddings,
-        persist_directory="./chroma_db"
-    )
+    # Qdrant Cloud Connection Secrets
+    qdrant_url = os.getenv("QDRANT_URL")
+    qdrant_api_key = os.getenv("QDRANT_API_KEY")
+    collection_name = "sec_10k_reports"
 
+    # Make Throttle for gemini free rate
     BATCH_SIZE = 90
-    print("Starting throttled ingestion. Grab a coffee, this will take a few minutes! ☕")
+    print("Starting throttled ingestion.")
     for i in range(0, len(chunks), BATCH_SIZE):
         batch = chunks[i:i + BATCH_SIZE]
         
-        # Calculate progress
+        # View progress
         current_batch_num = (i // BATCH_SIZE) + 1
         total_batches = (len(chunks) // BATCH_SIZE) + 1
         print(f"Ingesting batch {current_batch_num} of {total_batches}...")
         
-        # Add the batch to the database
-        vector_store.add_documents(batch)
+        # Add the batch directly to the Qdrant Cloud database
+        QdrantVectorStore.from_documents(
+            documents=batch,
+            embedding=embeddings,
+            url=qdrant_url,
+            api_key=qdrant_api_key,
+            collection_name=collection_name,
+            timeout=60.0
+        )
         
-        # If we are not on the very last batch, sleep to reset the API quota
         if i + BATCH_SIZE < len(chunks):
             print("Sleeping for 60 seconds to respect Google's free tier rate limits...")
             time.sleep(60)
