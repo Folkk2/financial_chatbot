@@ -51,4 +51,8 @@ streamlit run app.py
 * Add multi-document comparison (e.g., comparing 2023 vs 2024 reports).
 * Implement conversation memory (LangChain RunnableWithMessageHistory) for follow-up questions.
 
+<<<<<<< HEAD
 ## 
+=======
+## 
+>>>>>>> f46f80e77ea6d0b15cadfd15ab5f70a8ab1fa82d
