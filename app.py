@@ -8,7 +8,7 @@ st.set_page_config(
     layout="centered"
 )
 
-st.title("📈 AI Financial Analyst")
+st.title("AI Financial Analyst")
 st.write("Ask me anything about Apple & Tesla SEC 10-K report!")
 
 # Initialize Chat History
